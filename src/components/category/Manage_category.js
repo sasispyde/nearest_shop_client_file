@@ -12,17 +12,17 @@ class ManageCategory extends React.Component{
 	}
 
 	componentDidMount(){
-		// axios.get('/category').then((result) => {
-		// 	if(result.data.status !== 0){
-		// 		this.setState({
-		// 			res : result.data.data
-		// 		});
-		// 	} else {
-		// 		console.log(result.data.data)
-		// 	}
-		// }).catch((err) => {
-		// 	console.log(err);
-		// })
+		axios.get('/category').then((result) => {
+			if(result.data.status !== 0){
+				this.setState({
+					res : result.data.data
+				});
+			} else {
+				console.log(result.data.data)
+			}
+		}).catch((err) => {
+			console.log(err);
+		})
 	}
 
 	deleteCategoryHandler( e , id ){

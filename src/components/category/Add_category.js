@@ -1,5 +1,5 @@
 import React from 'react';
-// import axios from '../../axios';
+import axios from '../../axios';
 import { Redirect } from 'react-router';
 import validator from '../../validation/category/category_validation';
 
@@ -11,6 +11,7 @@ class AddCategory extends React.Component{
 			data : [],
 			cat_name : [""],
 			sub_category_name: [],
+			name_error : '',
 			sub_category_error: [],
 			redirect : false
 		}
@@ -23,15 +24,35 @@ class AddCategory extends React.Component{
 	handleSubmit(event){
 		event.preventDefault();
 		let response = validator.validate_sub_array(this.state.sub_category_name);
+		
 		if(this.state.cat_name[0] !== "" && response.length === 0){
 			let data = {
-				category_name : this.state.cat_name,
+				name : this.state.cat_name,
 				sub_category : this.state.sub_category_name	
 			}
-			console.log(data);
+			axios.post('/category/add_category',data,{ headers : { 'Accept' : 'application/json' }}).then((result)=>{
+				if(result.data.status !== 0 && result.data.status !== 4){
+					this.setState({
+						redirect : true
+					})
+				} else {
+					if(result.data.status === 4){
+						this.setState({
+							name_error : result.data.data.message
+						})
+					}
+				}
+			}).catch((err)=>{
+				console.log(err);
+			})
 		} else {
+			let name_error = '';
+			if(this.state.cat_name[0] === ''){
+				name_error = 'Categoty name must not be empty';
+			}
 			this.setState({
-				sub_category_error : response
+				sub_category_error : response,
+				name_error : name_error
 			})
 		}
 	}
@@ -93,29 +114,34 @@ class AddCategory extends React.Component{
 				<form onSubmit={ this.handleSubmit.bind(this) }>
 					<div style={{ marginTop : '30px' }} className=" form-group row">
 						<label className="col-sm-2 col-form-label">Categoty Name</label>
-						<div className="col-sm-6 input-group">
-							<input
-					            type="text"
-					            onChange={this.handleCatName(0)}
-					            value={this.state.cat_name}
-					            className ="form-control"
-					        />&nbsp;&nbsp;	
-				        	<button style={{ fontSize : '18px' }} title="Add Category" className="btn btn-outline-success btn-sm" onClick={this.addQuestion}>+</button>
+						<div className="col-sm-6">
+							<div className="input-group">
+								<input
+						            type="text"
+						            onChange={this.handleCatName(0)}
+						            value={this.state.cat_name}
+						            className ="form-control"
+						        />&nbsp;&nbsp;	
+					        	<button style={{ fontSize : '18px' }} title="Add Category" className="btn btn-outline-success btn-sm" onClick={this.addQuestion}>+</button>
+					        </div>
+				        	<p style={{color:"red",margin : 'auto auto auto auto'}} >{this.state.name_error}</p>
 				        </div>
 				    </div>
 			        {this.state.sub_category_name.map((question, index) => (
 			          <div className=" form-group row" key={index}>
 			          	<label className="col-sm-2 col-form-label">Sub Categoty Name </label>
-			            <div className="col-sm-6 input-group">
-				            <input
-				              type="text"
-				              onChange={this.handleText(index)}
-				              value={question}
-				              className ="form-control"
-				            />&nbsp;&nbsp;
-			            	<button title="Remove" className="btn btn-outline-danger btn-sm" onClick={this.handleDelete(index)}>X</button>
-			            </div>
-			          	<p style={{color:"red",margin : 'auto auto auto 0px'}} >{ this.state.sub_category_error[index] }</p>
+			            <div className="col-sm-6">
+				            <div className="input-group">
+					            <input
+					              type="text"
+					              onChange={this.handleText(index)}
+					              value={question}
+					              className ="form-control"
+					            />&nbsp;&nbsp;
+				            	<button title="Remove" className="btn btn-outline-danger btn-sm" onClick={this.handleDelete(index)}>X</button>
+				            </div>
+			          		<p style={{color:"red",margin : 'auto auto auto auto'}} >{ this.state.sub_category_error[index] }</p>
+			          	</div>
 			          </div>
 			        ))}
 			        <br />

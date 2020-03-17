@@ -17,21 +17,21 @@ class EditCategory extends React.Component{
 	}
 
 	componentDidMount(){
-		const url = window.location.href;
-		id = url.split("/");
-		id = id[5];
-		axios.get(`/category/edit/${id}`).then((result)=>{
-			if(result.data.status){
-				this.setState({
-					cat_name : result.data.data[0]['category_name'],
-					sub_category_name : result.data.data[0]['sub_category']
-				})
-			} else {
-				console.log(result.data.data)
-			}
-		}).catch((err)=>{
-			console.log(err);
-		})
+		// const url = window.location.href;
+		// id = url.split("/");
+		// id = id[5];
+		// axios.get(`/category/edit/${id}`).then((result)=>{
+		// 	if(result.data.status){
+		// 		this.setState({
+		// 			cat_name : result.data.data[0]['category_name'],
+		// 			sub_category_name : result.data.data[0]['sub_category']
+		// 		})
+		// 	} else {
+		// 		console.log(result.data.data)
+		// 	}
+		// }).catch((err)=>{
+		// 	console.log(err);
+		// })
 	}
 
 	handleSubmit(event){
@@ -105,26 +105,26 @@ class EditCategory extends React.Component{
 				<form onSubmit={ this.handleSubmit.bind(this) }>
 					<div style={{ marginTop : '30px' }} className=" form-group row">
 						<label className="col-sm-2 col-form-label">Categoty Name</label>
-						<div className="col-sm-6">
+						<div className="col-sm-6 input-group">
 							<input
 					            type="text"
 					            onChange={this.handleCatName(0)}
 					            value={this.state.cat_name}
 					            className ="form-control"
-					        />	
-				        	<button title="Add Category" className="btn btn-outline-success btn-sm" onClick={this.addQuestion}>Add Sub Category</button>
+					        />&nbsp;&nbsp;	
+				        	<button style={{ fontSize : '18px' }} title="Add Category" className="btn btn-outline-success btn-sm" onClick={this.addQuestion}>+</button>
 				        </div>
 				    </div>
 			        {this.state.sub_category_name.map((question, index) => (
 			          <div className=" form-group row" key={index}>
 			          	<label className="col-sm-2 col-form-label">Sub Categoty Name </label>
-			            <div className="col-sm-6">
+			            <div className="col-sm-6 input-group">
 				            <input
 				              type="text"
 				              onChange={this.handleText(index)}
 				              value={question}
 				              className ="form-control"
-				            />
+				            />&nbsp;&nbsp;
 			            	<button title="Remove" className="btn btn-outline-danger btn-sm" onClick={this.handleDelete(index)}>X</button>
 			            </div>
 			          </div>
@@ -132,7 +132,7 @@ class EditCategory extends React.Component{
 			        <br />
 				    <div className="form-group row">
 					    <div className="col-sm-6" style={{ margin:'auto' }}>
-					      <input type="submit" className="btn btn-primary" />
+					      <input type="submit" className="btn btn-outline-primary " />
 					    </div>
 					</div>
 			    </form>

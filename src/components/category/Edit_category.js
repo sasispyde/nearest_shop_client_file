@@ -3,7 +3,6 @@ import axios from '../../axios';
 import { Redirect } from 'react-router';
 import validator from '../../validation/category/category_validation';
 
-
 let id = "";
 class EditCategory extends React.Component{
 	constructor(props){
@@ -14,19 +13,33 @@ class EditCategory extends React.Component{
 			sub_category_name: [],
 			name_error : '',
 			sub_category_error: [],
-			redirect : false
+			redirect : false,
+			main_category_array : [],
+			main_category : '',
+			main_category_error : '',
+			main_category_value : '',
+			main_category_label : 'Select Main Category' 
 		}
 	}
 
 	componentDidMount(){
-		const url = window.location.href;
-		id = url.split("/");
-		id = id[5];
+		// const url = window.location.href;
+		// id = url.split("/");
+		// id = id[5];
+
+		const urlParams = new URLSearchParams(window.location.search);
+		id = urlParams.get('id');
+		
 		axios.get(`/category/edit/${id}`).then((result)=>{
 			if(result.data.status){
+				let response = result.data.data['category_details'][0]
 				this.setState({
-					cat_name : result.data.data[0]['category_name'],
-					sub_category_name : result.data.data[0]['sub_category']
+					cat_name : response['category_name'],
+					main_category : response['main_category_name'][0]['_id'],
+					main_category_value : response['main_category_name'][0]['_id'],
+					main_category_label : response['main_category_name'][0]['category_name'],
+					sub_category_name : response['sub_category'],
+					main_category_array : result.data.data['main_category']
 				})
 			} else {
 				console.log(result.data.data)
@@ -39,10 +52,11 @@ class EditCategory extends React.Component{
 	handleSubmit(event){
 		event.preventDefault();
 		let response = validator.validate_sub_array(this.state.sub_category_name);
-		if(this.state.cat_name[0] !== "" && response.length === 0){
+		if(this.state.cat_name !== "" && response.length === 0 && this.state.main_category !== ""){
 			let data = {
 				category_name : this.state.cat_name,
 				sub_category : this.state.sub_category_name,
+				main_category : this.state.main_category,
 				id : id	
 			}
 			axios.patch(`/category/edit/${id}`,data , { headers: {'Accept': 'application/json'}}).then((result)=>{
@@ -61,13 +75,18 @@ class EditCategory extends React.Component{
 				console.log(err);
 			})
 		} else {
-			let name_error = ''
-			if(this.state.cat_name[0] === ''){
-				name_error = 'Categoty name must not be empty';
+			let name_error = '';
+			let main_category_error = '';
+			if(this.state.cat_name === ''){
+				name_error = 'Filed must not be empty';
+			}
+			if(this.state.main_category.trim() === ""){
+				main_category_error = "Please select the main category"
 			}
 			this.setState({
 				sub_category_error : response,
-				name_error : name_error
+				name_error : name_error,
+				main_category_error : main_category_error
 			})
 		}
 	}
@@ -112,6 +131,21 @@ class EditCategory extends React.Component{
 	    }
 	}
 
+	handleChange(event){
+		let name = event.target.name;
+		if(name === 'main_category'){
+			this.setState({
+				[name] : event.target.value,
+				main_category_value : '',
+				main_category_label : 'Select Main Category'
+			})
+		} else {
+			this.setState({
+				[name] : event.target.value 
+			})
+		}
+	}
+
 	render(){
 		if (this.state.redirect) {
 	    	return <Redirect to='/category/manage_category' />;
@@ -121,6 +155,23 @@ class EditCategory extends React.Component{
 			<div className="container">
 				<form onSubmit={ this.handleSubmit.bind(this) }>
 					<div style={{ marginTop : '30px' }} className=" form-group row">
+						<label className="col-sm-2 col-form-label">Main Category</label>
+						<div className="col-sm-6">
+							<div className="input-group">
+								<select title="Recipe Category" name="main_category" onChange = { this.handleChange.bind(this) } className="form-control">
+								  	<option value={this.state.main_category_value}>{this.state.main_category_label}</option>
+								  	{
+								  		this.state.main_category_array.map((data,index) =>
+								  			data['category_name'] !== this.state.main_category_label &&
+								  			<option key={ index } value={data['_id']}>{ data['category_name'] }</option>
+								  		)
+								  	}
+								</select>
+					        </div>
+					        <p style={{color:"red",margin : 'auto auto auto auto'}} >{this.state.main_category_error}</p>
+				        </div>
+				    </div>
+					<div className=" form-group row">
 						<label className="col-sm-2 col-form-label">Categoty Name</label>
 						<div className="col-sm-6">
 						<div className="input-group">

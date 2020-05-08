@@ -13,22 +13,31 @@ class AddCategory extends React.Component{
 			sub_category_name: [],
 			name_error : '',
 			sub_category_error: [],
-			redirect : false
+			redirect : false,
+			main_category_array : [],
+			main_category : '',
+			main_category_error : ''
 		}
 	}
 
 	componentDidMount(){
-		
+		axios.get('/main_category/get_category').then((response)=>{
+			this.setState({
+				main_category_array : response.data.data
+			})
+		}).catch((err) =>{
+			console.log(err)
+		})
 	}
 
 	handleSubmit(event){
 		event.preventDefault();
 		let response = validator.validate_sub_array(this.state.sub_category_name);
-		
-		if(this.state.cat_name[0] !== "" && response.length === 0){
+		if(this.state.cat_name[0].trim() !== "" && response.length === 0 && this.state.main_category !== ""){
 			let data = {
 				name : this.state.cat_name,
-				sub_category : this.state.sub_category_name	
+				sub_category : this.state.sub_category_name,
+				main_category : this.state.main_category	
 			}
 			axios.post('/category/add_category',data,{ headers : { 'Accept' : 'application/json' }}).then((result)=>{
 				if(result.data.status !== 0 && result.data.status !== 4){
@@ -47,12 +56,17 @@ class AddCategory extends React.Component{
 			})
 		} else {
 			let name_error = '';
-			if(this.state.cat_name[0] === ''){
+			let main_category_error : "";
+			if(this.state.cat_name[0].trim() === ''){
 				name_error = 'Categoty name must not be empty';
+			}
+			if(this.state.main_category.trim() === ""){
+				main_category_error = "Please select the main category"
 			}
 			this.setState({
 				sub_category_error : response,
-				name_error : name_error
+				name_error : name_error,
+				main_category_error : main_category_error
 			})
 		}
 	}
@@ -104,6 +118,13 @@ class AddCategory extends React.Component{
 	    }
 	}
 
+	handleChange(event){
+		let name = event.target.name;
+		this.setState({
+			[name] : event.target.value 
+		})
+	}
+
 	render(){
 		if (this.state.redirect) {
 	    	return <Redirect to='/category/manage_category' />;
@@ -113,7 +134,23 @@ class AddCategory extends React.Component{
 			<div className="container">
 				<form onSubmit={ this.handleSubmit.bind(this) }>
 					<div style={{ marginTop : '30px' }} className=" form-group row">
-						<label className="col-sm-2 col-form-label">Categoty Name</label>
+						<label className="col-sm-2 col-form-label">Main Category</label>
+						<div className="col-sm-6">
+							<div className="input-group">
+								<select title="Recipe Category" name="main_category" onChange = { this.handleChange.bind(this) } className="form-control">
+								  	<option value=''>Category</option>
+								  	{
+								  		this.state.main_category_array.map((data,index) =>
+								  			<option key={ index } value={data['_id']}>{ data['category_name'] }</option>
+								  		)
+								  	}
+								</select>
+					        </div>
+					        <p style={{color:"red",margin : 'auto auto auto auto'}} >{this.state.main_category_error}</p>
+				        </div>
+				    </div>
+					<div className=" form-group row">
+						<label className="col-sm-2 col-form-label">Category Name</label>
 						<div className="col-sm-6">
 							<div className="input-group">
 								<input

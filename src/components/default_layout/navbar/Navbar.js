@@ -15,7 +15,7 @@ class Navbar extends React.Component{
 			      	 	<Link className="nav-link" to="/category/manage_category">Manage Category</Link>
 			      	 </li>
 			      	<li className="nav-item">
-			      	 	<Link className="nav-link" to="/manage_category">Manage Category</Link>
+			      	 	<Link className="nav-link" to="/country/manage_country">Manage Country</Link>
 			      	 </li>
 			      </ul>
 			    </div>

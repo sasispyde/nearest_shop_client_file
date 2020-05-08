@@ -14,6 +14,7 @@ class ManageCategory extends React.Component{
 	componentDidMount(){
 		axios.get('/category').then((result) => {
 			if(result.data.status !== 0){
+				console.log(result.data.data);
 				this.setState({
 					res : result.data.data
 				});
@@ -48,10 +49,11 @@ class ManageCategory extends React.Component{
 				<Link className="btn btn-outline-primary btn-sm" to={`/category/add_category`}>Add Category</Link>
 				<hr/>
 				<div className="table-responsive">
-					<table className="table table-bordered table-hover" style = {{ textAlign : 'center' ,backgroundColor : '#E3F2FD' }}>
+					<table className="table table-bordered table-hover" style = {{ textAlign : 'center' }}>
 					  <thead>
 					    <tr>
 					      <th scope="col">S.No</th>
+					      <th scope="col">Main Category</th>
 					      <th scope="col">Category Name</th>
 					      <th scope="col">Subcategory</th>
 					      <th scope="col">Status</th>
@@ -60,15 +62,19 @@ class ManageCategory extends React.Component{
 					  </thead>
 					  <tbody>
 					  { 
-					    this.state.res.map((data,i) => 	
+					    this.state.res.length > 0 && this.state.res.map((data,i) => 	
 		                    <tr key={i}>
 		                    	<td>{i+1}</td>
+		                        <td>{data['category_details'][0]['category_name']}</td>
 		                        <td>{data['category_name']}</td>
 		                        <td>{data['sub_category'].join(",").substring(0,20)}</td>
 		                        { data['status'] === "A" ? <td style={{ color : 'green' }}>Active</td> : <td style={{ color : 'red' }}>Blocked</td> }
 		                        <td>
 		                        <div className="btn-group" role="group" aria-label="Basic example">
-		                        	<Link className="btn btn-outline-success btn-sm" to={`/category/edit/${data['_id']}`}>Edit</Link>&nbsp;
+		                        	<Link className = 'btn btn-outline-success btn-sm' to={ {
+									  pathname: '/category/edit',
+									  search: '?id='+data['_id'],
+									} } >Edit</Link>&nbsp;
 								  	<button type="button" className="btn btn-outline-info btn-sm">Block</button>&nbsp;
 								  	<button type="button" onClick={((e) => this.deleteCategoryHandler(e, data['_id']))} className="btn btn-outline-danger btn-sm">Delete</button>
 								</div>
